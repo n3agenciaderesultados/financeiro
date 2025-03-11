@@ -28,7 +28,7 @@
             margin-top: 15px;
             color: #555;
         }
-        input[type="text"], input[type="date"], input[type="number"], select {
+        input[type="date"], input[type="number"], select {
             width: 100%;
             padding: 10px;
             margin-top: 5px;
@@ -56,40 +56,23 @@
     <div class="container">
         <h1>Formulário de Compras</h1>
         <form id="comprasForm">
-            <label for="titulo">Título:</label>
-            <input type="text" id="titulo" name="titulo" required>
+            <label for="data">DATA:</label>
+            <input type="date" id="data" name="data" required>
 
-            <label for="tipo">Tipo:</label>
-            <select id="tipo" name="tipo" required>
-                <option value="">Selecione...</option>
-                <option value="Material">Material</option>
-                <option value="Serviço">Serviço</option>
-                <option value="Outro">Outro</option>
-            </select>
-
-            <label for="data1">Data (Início):</label>
-            <input type="date" id="data1" name="data1" required>
-
-            <label for="data2">Data (Fim):</label>
-            <input type="date" id="data2" name="data2" required>
-
-            <label for="requisicao">Nº da Requisição:</label>
+            <label for="requisicao">Nº DA REQUISIÇÃO:</label>
             <input type="number" id="requisicao" name="requisicao" required>
 
-            <label for="numero">Número:</label>
-            <input type="number" id="numero" name="numero" required>
-
-            <label for="solicitante">Solicitante:</label>
+            <label for="solicitante">SOLICITANTE:</label>
             <select id="solicitante" name="solicitante" required>
                 <option value="">Carregando...</option>
             </select>
 
-            <label for="fornecedor">Fornecedor:</label>
+            <label for="fornecedor">FORNECEDOR:</label>
             <select id="fornecedor" name="fornecedor" required>
                 <option value="">Carregando...</option>
             </select>
 
-            <label for="valor">Valor (R$):</label>
+            <label for="valor">VALOR (R$):</label>
             <input type="number" step="0.01" id="valor" name="valor" required>
 
             <input type="submit" value="Enviar">
@@ -140,12 +123,8 @@
             const formData = new FormData(this);
 
             const data = {
-                titulo: formData.get("titulo"),
-                tipo: formData.get("tipo"),
-                data1: formData.get("data1"),
-                data2: formData.get("data2"),
+                data: formData.get("data"),
                 requisicao: formData.get("requisicao"),
-                numero: formData.get("numero"),
                 solicitante: formData.get("solicitante"),
                 fornecedor: formData.get("fornecedor"),
                 valor: formData.get("valor")
