@@ -116,18 +116,21 @@
     </div>
 
     <script>
-        // Função para carregar dados das planilhas
-        async function carregarDadosPlanilha(url, coluna) {
+        // Função para carregar dados da API do Google Sheets
+        async function carregarDadosPlanilha(url) {
             const response = await fetch(url);
             const data = await response.json();
-            return data.values.map(row => row[coluna]);
+            return data.values.map(row => row[0]); // Extrai apenas a primeira coluna
         }
 
         // Carregar solicitantes
-        carregarDadosPlanilha(
-            "https://sheets.googleapis.com/v4/spreadsheets/1FtbHXiTx2nURg3ZhBjNlehnaClFS7tSWpoc3KGCvTsg/values/SOLICITANTE!B2:B?key=YOUR_API_KEY",
-            0
-        ).then(solicitantes => {
+        const apiKey = "https://script.google.com/macros/s/AKfycbzH3omPI5rCH3WASpOiG5vGa8oXp147M3WCIpuIJ7jKjw3bsQ5PnQ_a809LIc5NfJ2_/exec"; // Substitua pela sua chave de API
+        const spreadsheetId = "1FtbHXiTx2nURg3ZhBjNlehnaClFS7tSWpoc3KGCvTsg"; // ID da planilha
+
+        const urlSolicitante = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/SOLICITANTE!B2:B?key=${apiKey}`;
+        const urlFornecedor = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/FORNECEDOR!B2:B?key=${apiKey}`;
+
+        carregarDadosPlanilha(urlSolicitante).then(solicitantes => {
             const select = document.getElementById("solicitante");
             select.innerHTML = "";
             solicitantes.forEach(solicitante => {
@@ -138,11 +141,7 @@
             });
         });
 
-        // Carregar fornecedores
-        carregarDadosPlanilha(
-            "https://sheets.googleapis.com/v4/spreadsheets/1FtbHXiTx2nURg3ZhBjNlehnaClFS7tSWpoc3KGCvTsg/values/FORNECEDOR!B2:B?key=YOUR_API_KEY",
-            0
-        ).then(fornecedores => {
+        carregarDadosPlanilha(urlFornecedor).then(fornecedores => {
             const select = document.getElementById("fornecedor");
             select.innerHTML = "";
             fornecedores.forEach(fornecedor => {
@@ -153,7 +152,7 @@
             });
         });
 
-        // Enviar dados para a API SheetsDB
+        // Enviar dados para o SheetsDB
         document.getElementById("comprasForm").addEventListener("submit", async function(event) {
             event.preventDefault();
             const formData = new FormData(this);
@@ -166,7 +165,9 @@
                 valor: formData.get("valor")
             };
 
-            const response = await fetch("https://sheetsdb.io/api/v1/YOUR_SHEETSDB_ID", {
+            const sheetsDbUrl = "https://sheetdb.io/api/v1/47btigzd77fwp"; // Substitua pelo seu SheetsDB ID
+
+            const response = await fetch(sheetsDbUrl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
