@@ -118,38 +118,63 @@
     <script>
         // Função para carregar dados da API do Google Sheets
         async function carregarDadosPlanilha(url) {
-            const response = await fetch(url);
-            const data = await response.json();
-            return data.values.map(row => row[0]); // Extrai apenas a primeira coluna
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Erro ao carregar dados: ${response.status}`);
+                }
+                const data = await response.json();
+                return data.values.map(row => row[0]); // Extrai apenas a primeira coluna
+            } catch (error) {
+                console.error("Erro ao carregar dados da planilha:", error);
+                alert("Erro ao carregar dados da planilha. Verifique a conexão ou as configurações.");
+                return [];
+            }
         }
 
-        // Carregar solicitantes
-        const apiKey = "https://script.google.com/macros/s/AKfycbzH3omPI5rCH3WASpOiG5vGa8oXp147M3WCIpuIJ7jKjw3bsQ5PnQ_a809LIc5NfJ2_/exec"; // Substitua pela sua chave de API
+        // Configurações da API
+        const apiKey = "https://script.google.com/macros/s/AKfycbwGE4O3Hot4OgnjeSBsJpLuD7Hxjif3Fp0D0IWufRJi7-rl-vkQG1jTWRcJbZE3UpsX/exec"; // Substitua pela sua chave de API
         const spreadsheetId = "1FtbHXiTx2nURg3ZhBjNlehnaClFS7tSWpoc3KGCvTsg"; // ID da planilha
 
         const urlSolicitante = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/SOLICITANTE!B2:B?key=${apiKey}`;
         const urlFornecedor = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/FORNECEDOR!B2:B?key=${apiKey}`;
 
+        // Carregar solicitantes
         carregarDadosPlanilha(urlSolicitante).then(solicitantes => {
             const select = document.getElementById("solicitante");
             select.innerHTML = "";
-            solicitantes.forEach(solicitante => {
+            if (solicitantes.length === 0) {
                 const option = document.createElement("option");
-                option.value = solicitante;
-                option.textContent = solicitante;
+                option.value = "";
+                option.textContent = "Nenhum dado disponível";
                 select.appendChild(option);
-            });
+            } else {
+                solicitantes.forEach(solicitante => {
+                    const option = document.createElement("option");
+                    option.value = solicitante;
+                    option.textContent = solicitante;
+                    select.appendChild(option);
+                });
+            }
         });
 
+        // Carregar fornecedores
         carregarDadosPlanilha(urlFornecedor).then(fornecedores => {
             const select = document.getElementById("fornecedor");
             select.innerHTML = "";
-            fornecedores.forEach(fornecedor => {
+            if (fornecedores.length === 0) {
                 const option = document.createElement("option");
-                option.value = fornecedor;
-                option.textContent = fornecedor;
+                option.value = "";
+                option.textContent = "Nenhum dado disponível";
                 select.appendChild(option);
-            });
+            } else {
+                fornecedores.forEach(fornecedor => {
+                    const option = document.createElement("option");
+                    option.value = fornecedor;
+                    option.textContent = fornecedor;
+                    select.appendChild(option);
+                });
+            }
         });
 
         // Enviar dados para o SheetsDB
@@ -167,19 +192,24 @@
 
             const sheetsDbUrl = "https://sheetdb.io/api/v1/47btigzd77fwp"; // Substitua pelo seu SheetsDB ID
 
-            const response = await fetch(sheetsDbUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            });
+            try {
+                const response = await fetch(sheetsDbUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
 
-            if (response.ok) {
-                alert("Dados enviados com sucesso!");
-                this.reset();
-            } else {
-                alert("Erro ao enviar os dados.");
+                if (response.ok) {
+                    alert("Dados enviados com sucesso!");
+                    this.reset();
+                } else {
+                    throw new Error(`Erro ao enviar dados: ${response.status}`);
+                }
+            } catch (error) {
+                console.error("Erro ao enviar dados para o SheetsDB:", error);
+                alert("Erro ao enviar os dados. Verifique a conexão ou as configurações.");
             }
         });
     </script>
