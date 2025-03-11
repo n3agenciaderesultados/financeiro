@@ -117,14 +117,14 @@
 
     <script>
         // Função para carregar dados da API do Google Apps Script
-        async function carregarDadosPlanilha(url) {
+        async function carregarDadosPlanilha(url, aba) {
             try {
-                const response = await fetch(url);
+                const response = await fetch(`${url}?aba=${aba}`);
                 if (!response.ok) {
-                    throw new Error(`Erro ao carregar dados: ${response.status}`);
+                    throw new Error(`Erro ao carregar dados (${response.status}): ${await response.text()}`);
                 }
                 const data = await response.json();
-                return data; // Retorna os dados recebidos
+                return data;
             } catch (error) {
                 console.error("Erro ao carregar dados da planilha:", error);
                 alert("Erro ao carregar dados da planilha. Verifique a conexão ou as configurações.");
@@ -133,14 +133,14 @@
         }
 
         // URLs das APIs
-        const googleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbxgx7dE32QV0TrNKrSVOlysPGbaEiwx4RTgV5VcJPl4J1Ixrz7ndKl0-FhTvrBZtOvL/exec";
+        const googleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbxQBf7DjkeGYOXhnxquwYXM94rggoLlXjrCAoxukFxqW0wxRRbizNORnmZ1T_bg9xTR/exec";
         const sheetsDbUrl = "https://sheetdb.io/api/v1/47btigzd77fwp";
 
         // Carregar solicitantes
-        carregarDadosPlanilha(googleAppsScriptUrl + "?aba=SOLICITANTE").then(solicitantes => {
+        carregarDadosPlanilha(googleAppsScriptUrl, "SOLICITANTE").then(solicitantes => {
             const select = document.getElementById("solicitante");
             select.innerHTML = "";
-            if (solicitantes.length === 0) {
+            if (solicitantes.length === 0 || solicitantes.error) {
                 const option = document.createElement("option");
                 option.value = "";
                 option.textContent = "Nenhum dado disponível";
@@ -156,10 +156,10 @@
         });
 
         // Carregar fornecedores
-        carregarDadosPlanilha(googleAppsScriptUrl + "?aba=FORNECEDOR").then(fornecedores => {
+        carregarDadosPlanilha(googleAppsScriptUrl, "FORNECEDOR").then(fornecedores => {
             const select = document.getElementById("fornecedor");
             select.innerHTML = "";
-            if (fornecedores.length === 0) {
+            if (fornecedores.length === 0 || fornecedores.error) {
                 const option = document.createElement("option");
                 option.value = "";
                 option.textContent = "Nenhum dado disponível";
