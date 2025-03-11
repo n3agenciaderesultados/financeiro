@@ -116,7 +116,7 @@
     </div>
 
     <script>
-        // Função para carregar dados da API do Google Sheets
+        // Função para carregar dados da API do Google Apps Script
         async function carregarDadosPlanilha(url) {
             try {
                 const response = await fetch(url);
@@ -124,7 +124,7 @@
                     throw new Error(`Erro ao carregar dados: ${response.status}`);
                 }
                 const data = await response.json();
-                return data.values.map(row => row[0]); // Extrai apenas a primeira coluna
+                return data; // Retorna os dados recebidos
             } catch (error) {
                 console.error("Erro ao carregar dados da planilha:", error);
                 alert("Erro ao carregar dados da planilha. Verifique a conexão ou as configurações.");
@@ -132,15 +132,12 @@
             }
         }
 
-        // Configurações da API
-        const apiKey = "https://script.google.com/macros/s/AKfycbwGE4O3Hot4OgnjeSBsJpLuD7Hxjif3Fp0D0IWufRJi7-rl-vkQG1jTWRcJbZE3UpsX/exec"; // Substitua pela sua chave de API
-        const spreadsheetId = "1FtbHXiTx2nURg3ZhBjNlehnaClFS7tSWpoc3KGCvTsg"; // ID da planilha
-
-        const urlSolicitante = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/SOLICITANTE!B2:B?key=${apiKey}`;
-        const urlFornecedor = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/FORNECEDOR!B2:B?key=${apiKey}`;
+        // URLs das APIs
+        const googleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbwGE4O3Hot4OgnjeSBsJpLuD7Hxjif3Fp0D0IWufRJi7-rl-vkQG1jTWRcJbZE3UpsX/exec";
+        const sheetsDbUrl = "https://sheetdb.io/api/v1/47btigzd77fwp";
 
         // Carregar solicitantes
-        carregarDadosPlanilha(urlSolicitante).then(solicitantes => {
+        carregarDadosPlanilha(googleAppsScriptUrl + "?aba=SOLICITANTE").then(solicitantes => {
             const select = document.getElementById("solicitante");
             select.innerHTML = "";
             if (solicitantes.length === 0) {
@@ -159,7 +156,7 @@
         });
 
         // Carregar fornecedores
-        carregarDadosPlanilha(urlFornecedor).then(fornecedores => {
+        carregarDadosPlanilha(googleAppsScriptUrl + "?aba=FORNECEDOR").then(fornecedores => {
             const select = document.getElementById("fornecedor");
             select.innerHTML = "";
             if (fornecedores.length === 0) {
@@ -189,8 +186,6 @@
                 fornecedor: formData.get("fornecedor"),
                 valor: formData.get("valor")
             };
-
-            const sheetsDbUrl = "https://sheetdb.io/api/v1/47btigzd77fwp"; // Substitua pelo seu SheetsDB ID
 
             try {
                 const response = await fetch(sheetsDbUrl, {
