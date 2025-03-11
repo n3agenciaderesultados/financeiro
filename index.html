@@ -133,7 +133,8 @@
         }
 
         // URLs das APIs
-        const googleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbwrrAoCnpA-eoCSLGWH9locsIuB1BZC6sgJt1JxyfGOT2eLJSlZfpkP9QIIUYXj7mZp/exec";
+        const googleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbznYrbczQsaDFRaCqHxlPnZvagLolwp-luvoqPilhCGwmi7WjyHbfR36lOc1I8N8d6_/exec";
+        const sheetsDbUrl = "https://sheetdb.io/api/v1/47btigzd77fwp";
 
         // Carregar solicitantes
         carregarDadosPlanilha(googleAppsScriptUrl, "SOLICITANTE").then(solicitantes => {
@@ -187,7 +188,7 @@
             }
         });
 
-        // Enviar dados para o Google Apps Script
+        // Enviar dados para o SheetsDB
         document.getElementById("comprasForm").addEventListener("submit", async function(event) {
             event.preventDefault();
             const formData = new FormData(this);
@@ -201,10 +202,10 @@
                 valor: formData.get("valor")
             };
 
-            console.log("Dados a serem enviados:", data); // Log para depuração
+            console.log("Enviando dados para o SheetsDB:", data); // Log para depuração
 
             try {
-                const response = await fetch(googleAppsScriptUrl, {
+                const response = await fetch(sheetsDbUrl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -220,7 +221,7 @@
                     throw new Error(`Erro ao enviar dados (${response.status}): ${errorMessage}`);
                 }
             } catch (error) {
-                console.error("Erro ao enviar dados para o Google Apps Script:", error);
+                console.error("Erro ao enviar dados para o SheetsDB:", error);
                 alert("Erro ao enviar os dados. Verifique a conexão ou as configurações.");
             }
         });
