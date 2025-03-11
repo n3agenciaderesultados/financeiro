@@ -133,7 +133,7 @@
         }
 
         // URLs das APIs
-        const googleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbxQBf7DjkeGYOXhnxquwYXM94rggoLlXjrCAoxukFxqW0wxRRbizNORnmZ1T_bg9xTR/exec";
+        const googleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbwd06DJCDjnwDthU3YRKIQDis38ezcR_-Q4Ohpvouj7rudH_xeaiuJU0_cmscAR3PEc/exec";
         const sheetsDbUrl = "https://sheetdb.io/api/v1/47btigzd77fwp";
 
         // Carregar solicitantes
@@ -146,6 +146,13 @@
                 option.textContent = "Nenhum dado disponível";
                 select.appendChild(option);
             } else {
+                // Adiciona a opção "Selecione um item"
+                const defaultOption = document.createElement("option");
+                defaultOption.value = "";
+                defaultOption.textContent = "Selecione um item";
+                select.appendChild(defaultOption);
+
+                // Adiciona os solicitantes
                 solicitantes.forEach(solicitante => {
                     const option = document.createElement("option");
                     option.value = solicitante;
@@ -165,6 +172,13 @@
                 option.textContent = "Nenhum dado disponível";
                 select.appendChild(option);
             } else {
+                // Adiciona a opção "Selecione um item"
+                const defaultOption = document.createElement("option");
+                defaultOption.value = "";
+                defaultOption.textContent = "Selecione um item";
+                select.appendChild(defaultOption);
+
+                // Adiciona os fornecedores
                 fornecedores.forEach(fornecedor => {
                     const option = document.createElement("option");
                     option.value = fornecedor;
@@ -174,18 +188,37 @@
             }
         });
 
+        // Função para converter data de DD/MM/YYYY para YYYY-MM-DD
+        function converterData(dataBr) {
+            const [dia, mes, ano] = dataBr.split("/"); // Divide a data em dia, mês e ano
+            return `${ano}-${mes.padStart(2, "0")}-${dia.padStart(2, "0")}`; // Formata como YYYY-MM-DD
+        }
+
         // Enviar dados para o SheetsDB
         document.getElementById("comprasForm").addEventListener("submit", async function(event) {
             event.preventDefault();
             const formData = new FormData(this);
 
+            // Obtém os dados do formulário
+            const dataBr = formData.get("data"); // Data no formato DD/MM/YYYY
+            const requisicao = formData.get("requisicao");
+            const solicitante = formData.get("solicitante");
+            const fornecedor = formData.get("fornecedor");
+            const valor = formData.get("valor");
+
+            // Converte a data para o formato ISO 8601 (YYYY-MM-DD)
+            const dataIso = converterData(dataBr);
+
+            // Cria o objeto JSON para envio
             const data = {
-                data: formData.get("data"),
-                requisicao: formData.get("requisicao"),
-                solicitante: formData.get("solicitante"),
-                fornecedor: formData.get("fornecedor"),
-                valor: formData.get("valor")
+                data: dataIso,
+                requisicao: requisicao,
+                solicitante: solicitante,
+                fornecedor: fornecedor,
+                valor: valor
             };
+
+            console.log("Dados a serem enviados:", data); // Log para depuração
 
             try {
                 const response = await fetch(sheetsDbUrl, {
@@ -200,7 +233,8 @@
                     alert("Dados enviados com sucesso!");
                     this.reset();
                 } else {
-                    throw new Error(`Erro ao enviar dados: ${response.status}`);
+                    const errorMessage = await response.text(); // Captura a mensagem de erro
+                    throw new Error(`Erro ao enviar dados (${response.status}): ${errorMessage}`);
                 }
             } catch (error) {
                 console.error("Erro ao enviar dados para o SheetsDB:", error);
