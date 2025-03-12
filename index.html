@@ -1,230 +1,111 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulário de Compras</title>
-    <style>
-        /* Estilo geral */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        /* Container principal */
-        .container {
-            width: 100%;
-            max-width: 500px;
-            background: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Título */
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        /* Estilo dos campos */
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 15px;
-        }
-
-        label {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 5px;
-        }
-
-        input[type="date"],
-        input[type="number"],
-        select {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        /* Botão de envio */
-        input[type="submit"] {
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #218838;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Formulário de Compras</h1>
-        <form id="comprasForm">
-            <!-- Data -->
-            <div class="form-group">
-                <label for="data">DATA:</label>
-                <input type="date" id="data" name="data" required>
-            </div>
-
-            <!-- Nº da Requisição -->
-            <div class="form-group">
-                <label for="requisicao">Nº DA REQUISIÇÃO:</label>
-                <input type="number" id="requisicao" name="requisicao" required>
-            </div>
-
-            <!-- Solicitante -->
-            <div class="form-group">
-                <label for="solicitante">SOLICITANTE:</label>
-                <select id="solicitante" name="solicitante" required>
-                    <option value="">Carregando...</option>
-                </select>
-            </div>
-
-            <!-- Fornecedor -->
-            <div class="form-group">
-                <label for="fornecedor">FORNECEDOR:</label>
-                <select id="fornecedor" name="fornecedor" required>
-                    <option value="">Carregando...</option>
-                </select>
-            </div>
-
-            <!-- Valor -->
-            <div class="form-group">
-                <label for="valor">VALOR (R$):</label>
-                <input type="number" step="0.01" id="valor" name="valor" required>
-            </div>
-
-            <!-- Botão de envio -->
-            <input type="submit" value="Enviar">
-        </form>
-    </div>
-
-    <script>
-        // Função para carregar dados da API do Google Apps Script
-        async function carregarDadosPlanilha(url, aba) {
-            try {
-                const response = await fetch(`${url}?aba=${aba}`);
-                if (!response.ok) {
-                    throw new Error(`Erro ao carregar dados (${response.status}): ${await response.text()}`);
-                }
-                const data = await response.json();
-                return data;
-            } catch (error) {
-                console.error("Erro ao carregar dados da planilha:", error);
-                alert("Erro ao carregar dados da planilha. Verifique a conexão ou as configurações.");
-                return [];
+<script>
+    // Função para carregar dados da API do Google Apps Script
+    async function carregarDadosPlanilha(url, aba) {
+        try {
+            const response = await fetch(`${url}?aba=${aba}`);
+            if (!response.ok) {
+                throw new Error(`Erro ao carregar dados (${response.status}): ${await response.text()}`);
             }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error("Erro ao carregar dados da planilha:", error);
+            alert("Erro ao carregar dados da planilha. Verifique a conexão ou as configurações.");
+            return [];
         }
+    }
 
-        // URLs das APIs
-        const googleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbznYrbczQsaDFRaCqHxlPnZvagLolwp-luvoqPilhCGwmi7WjyHbfR36lOc1I8N8d6_/exec";
-        const sheetsDbUrl = "https://sheetdb.io/api/v1/v4z95zoa0mhij";
+    // URLs das APIs
+    const googleAppsScriptUrl = "https://script.google.com/macros/s/AKfycbwnUJbOlJYACP1ULyLDfYMVuW3G2ZmfVYti3Ocv-8e_gCaubd95DAb0E-j34Wm_1CQ2/exec";
+    const sheetsDbUrl = "https://sheetdb.io/api/v1/v4z95zoa0mhij";
 
-        // Carregar solicitantes
-        carregarDadosPlanilha(googleAppsScriptUrl, "SOLICITANTE").then(solicitantes => {
-            const select = document.getElementById("solicitante");
-            select.innerHTML = "";
-            if (solicitantes.length === 0 || solicitantes.error) {
+    // Carregar solicitantes
+    carregarDadosPlanilha(googleAppsScriptUrl, "SOLICITANTE").then(solicitantes => {
+        const select = document.getElementById("solicitante");
+        select.innerHTML = "";
+        if (solicitantes.length === 0 || solicitantes.error) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "Nenhum dado disponível";
+            select.appendChild(option);
+        } else {
+            // Adiciona a opção "Selecione um item"
+            const defaultOption = document.createElement("option");
+            defaultOption.value = "";
+            defaultOption.textContent = "Selecione um item";
+            select.appendChild(defaultOption);
+
+            // Adiciona os solicitantes
+            solicitantes.forEach(solicitante => {
                 const option = document.createElement("option");
-                option.value = "";
-                option.textContent = "Nenhum dado disponível";
+                option.value = solicitante;
+                option.textContent = solicitante;
                 select.appendChild(option);
-            } else {
-                // Adiciona a opção "Selecione um item"
-                const defaultOption = document.createElement("option");
-                defaultOption.value = "";
-                defaultOption.textContent = "Selecione um item";
-                select.appendChild(defaultOption);
+            });
+        }
+    });
 
-                // Adiciona os solicitantes
-                solicitantes.forEach(solicitante => {
-                    const option = document.createElement("option");
-                    option.value = solicitante;
-                    option.textContent = solicitante;
-                    select.appendChild(option);
-                });
-            }
-        });
+    // Carregar fornecedores
+    carregarDadosPlanilha(googleAppsScriptUrl, "FORNECEDOR").then(fornecedores => {
+        const select = document.getElementById("fornecedor");
+        select.innerHTML = "";
+        if (fornecedores.length === 0 || fornecedores.error) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "Nenhum dado disponível";
+            select.appendChild(option);
+        } else {
+            // Adiciona a opção "Selecione um item"
+            const defaultOption = document.createElement("option");
+            defaultOption.value = "";
+            defaultOption.textContent = "Selecione um item";
+            select.appendChild(defaultOption);
 
-        // Carregar fornecedores
-        carregarDadosPlanilha(googleAppsScriptUrl, "FORNECEDOR").then(fornecedores => {
-            const select = document.getElementById("fornecedor");
-            select.innerHTML = "";
-            if (fornecedores.length === 0 || fornecedores.error) {
+            // Adiciona os fornecedores
+            fornecedores.forEach(fornecedor => {
                 const option = document.createElement("option");
-                option.value = "";
-                option.textContent = "Nenhum dado disponível";
+                option.value = fornecedor;
+                option.textContent = fornecedor;
                 select.appendChild(option);
+            });
+        }
+    });
+
+    // Enviar dados para o SheetsDB
+    document.getElementById("comprasForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+
+        // Cria o objeto JSON para envio
+        const data = {
+            data: formData.get("data"), // Certifique-se de que o nome da coluna na planilha seja "data"
+            requisicao: formData.get("requisicao"), // Certifique-se de que o nome da coluna na planilha seja "requisicao"
+            solicitante: formData.get("solicitante"), // Certifique-se de que o nome da coluna na planilha seja "solicitante"
+            fornecedor: formData.get("fornecedor"), // Certifique-se de que o nome da coluna na planilha seja "fornecedor"
+            valor: formData.get("valor") // Certifique-se de que o nome da coluna na planilha seja "valor"
+        };
+
+        console.log("Enviando dados para o SheetsDB:", data); // Log para depuração
+
+        try {
+            const response = await fetch(sheetsDbUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert("Dados enviados com sucesso!");
+                this.reset();
             } else {
-                // Adiciona a opção "Selecione um item"
-                const defaultOption = document.createElement("option");
-                defaultOption.value = "";
-                defaultOption.textContent = "Selecione um item";
-                select.appendChild(defaultOption);
-
-                // Adiciona os fornecedores
-                fornecedores.forEach(fornecedor => {
-                    const option = document.createElement("option");
-                    option.value = fornecedor;
-                    option.textContent = fornecedor;
-                    select.appendChild(option);
-                });
+                const errorMessage = await response.text(); // Captura a mensagem de erro
+                throw new Error(`Erro ao enviar dados (${response.status}): ${errorMessage}`);
             }
-        });
-
-        // Enviar dados para o SheetsDB
-        document.getElementById("comprasForm").addEventListener("submit", async function(event) {
-            event.preventDefault();
-            const formData = new FormData(this);
-
-            // Cria o objeto JSON para envio
-            const data = {
-                data: formData.get("data"),
-                requisicao: formData.get("requisicao"),
-                solicitante: formData.get("solicitante"),
-                fornecedor: formData.get("fornecedor"),
-                valor: formData.get("valor")
-            };
-
-            console.log("Enviando dados para o SheetsDB:", data); // Log para depuração
-
-            try {
-                const response = await fetch(sheetsDbUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    alert("Dados enviados com sucesso!");
-                    this.reset();
-                } else {
-                    const errorMessage = await response.text(); // Captura a mensagem de erro
-                    throw new Error(`Erro ao enviar dados (${response.status}): ${errorMessage}`);
-                }
-            } catch (error) {
-                console.error("Erro ao enviar dados para o SheetsDB:", error);
-                alert("Erro ao enviar os dados. Verifique a conexão ou as configurações.");
-            }
-        });
-    </script>
-</body>
-</html>
+        } catch (error) {
+            console.error("Erro ao enviar dados para o SheetsDB:", error);
+            alert("Erro ao enviar os dados. Verifique a conexão ou as configurações.");
+        }
+    });
+</script>
